@@ -14,12 +14,13 @@
         "winston": "^3.8.2"
     },
     "scripts": {
-        "extract": "ts-node src/index.ts extract",
+        "extract-events": "ts-node src/index.ts extract-events",
         "build": "webpack",
         "postbuild": "./package.sh"
     },
     "devDependencies": {
         "@types/async": "^3.2.20",
+        "@types/luxon": "^3.3.2",
         "@types/node": "^20.2.4",
         "bestzip": "^2.2.1",
         "rimraf": "^5.0.1",
