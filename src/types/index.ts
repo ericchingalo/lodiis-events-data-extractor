@@ -11,6 +11,11 @@ export interface DataValue {
   value: string;
 }
 
+export interface Attribute {
+  attribute: string;
+  value: string;
+}
+
 export interface Dhis2Event {
   event: string;
   trackedEntityInstance: string;
@@ -18,4 +23,8 @@ export interface Dhis2Event {
   programStage: string;
   eventDate: string;
   dataValues: DataValue[];
+}
+
+export interface Dhis2TrackedEntityInstance {
+  trackedEntityInstance: string;
 }
