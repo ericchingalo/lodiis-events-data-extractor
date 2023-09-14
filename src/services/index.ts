@@ -82,10 +82,24 @@ function getBeneficiariesMappedWithThierEvents(
     const attributeAttributeColumns = getIdentifiers(attributes, program);
     const ServiceColumns = getServiceColumns(events, program);
 
-    beneficiaries.push({ ...attributeAttributeColumns, ...ServiceColumns });
+    beneficiaries.push({
+      ...attributeAttributeColumns,
+      ...sortByKeys(ServiceColumns),
+    });
   }
 
   return beneficiaries;
+}
+
+function sortByKeys(unorderedData: { [key: string]: string }): {
+  [key: string]: string;
+} {
+  return Object.keys(unorderedData)
+    .sort()
+    .reduce((object: { [key: string]: string }, key: string) => {
+      object[key] = unorderedData[key];
+      return object;
+    }, {});
 }
 
 function getIdentifiers(
