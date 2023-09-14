@@ -101,11 +101,6 @@ export const columnMappings: ProgramConfig = {
         programStage: "NXsIkG9Q1BA",
       },
       {
-        column: "Condom Education/Provision",
-        dataElement: "d4AJf9yiKpL",
-        programStage: "NXsIkG9Q1BA",
-      },
-      {
         column: "PrEP",
         dataElement: "veoA322323t",
         programStage: "mMjGlK1W0Xo",

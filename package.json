@@ -11,7 +11,8 @@
         "dotenv": "^16.0.3",
         "lodash": "^4.17.21",
         "luxon": "^3.3.0",
-        "winston": "^3.8.2"
+        "winston": "^3.8.2",
+        "xlsx": "^0.18.5"
     },
     "scripts": {
         "extract-events": "ts-node src/index.ts extract-events",

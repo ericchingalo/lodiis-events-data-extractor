@@ -1,3 +1,4 @@
+import * as XLSX from "xlsx";
 import { DateTime } from "luxon";
 import { groupBy, keys, uniq, chunk, map, find } from "lodash";
 
@@ -21,7 +22,7 @@ interface BeneficiaryData {
   [key: string]: string;
 }
 
-const EVENTS_PAGE_SIZE = 1000;
+const EVENTS_PAGE_SIZE = 5000;
 const TEI_PAGE_SIZE = 100;
 
 export async function initializeEventsDataExtraction({
@@ -50,14 +51,13 @@ export async function initializeEventsDataExtraction({
       program
     );
 
-    // 3. Combine the payload events with tei data in rows.
     const beneficiries = getBeneficiariesMappedWithThierEvents(
       program,
       groupedEventsByTrackeEntityInstances,
       trackedEntityInstances
     );
 
-    console.log(JSON.stringify({ beneficiries }));
+    saveDataToFile(beneficiries, startDate, endDate);
   } catch (error) {
     logger.error(
       `Failed to evaluate events for ${program} program. Check the log below`
@@ -169,6 +169,27 @@ function getServiceColumns(
   }
 
   return data;
+}
+
+function saveDataToFile(
+  data: BeneficiaryData[],
+  startDate: string,
+  endDate: string
+) {
+  logger.info("Saving the extracted data into the file");
+  try {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+    const fileName = `Service Data from ${startDate} ot ${endDate}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+
+    logger.info(`Extracted data are saved on file ${fileName}`);
+  } catch (error) {
+    logger.error("Failed to save the file! Check the error message below");
+    logger.error(JSON.stringify(error));
+  }
 }
 
 async function getTrackedEntityInstancesByIds(
