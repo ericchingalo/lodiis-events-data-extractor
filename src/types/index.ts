@@ -22,9 +22,31 @@ export interface Dhis2Event {
   orgUnitName: string;
   programStage: string;
   eventDate: string;
-  dataValues: DataValue[];
+  dataValues: Array<DataValue>;
 }
 
 export interface Dhis2TrackedEntityInstance {
   trackedEntityInstance: string;
+  enrollments: Array<{ orgUnitName: string }>;
+  attributes: Array<Attribute>;
+}
+
+export interface ProgramConfig {
+  [key: string]: ProgramMapping;
+}
+
+export interface AttributeColumMapping {
+  attribute: string;
+  column: string;
+}
+
+export interface EventColumbMapping {
+  column?: string;
+  programStage: string;
+  dataElement: string;
+}
+
+export interface ProgramMapping {
+  attributeColumns: Array<AttributeColumMapping>;
+  eventColumns: Array<EventColumbMapping>;
 }

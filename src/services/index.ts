@@ -1,9 +1,15 @@
 import { DateTime } from "luxon";
-import { groupBy, keys, uniq, chunk, map } from "lodash";
+import { groupBy, keys, uniq, chunk, map, find } from "lodash";
 
 import logger from "../logging";
-import { Dhis2Event, Dhis2TrackedEntityInstance } from "../types";
+import {
+  Attribute,
+  DataValue,
+  Dhis2Event,
+  Dhis2TrackedEntityInstance,
+} from "../types";
 import dhis2Client from "../clients/dhis2";
+import { columnMappings } from "../configs/columns";
 
 interface EventExtractionArguments {
   startDate?: string;
@@ -11,8 +17,12 @@ interface EventExtractionArguments {
   program: string;
 }
 
-const EVENTS_PAGE_SIZE = 500;
-const TEI_PAGE_SIZE = 50;
+interface BeneficiaryData {
+  [key: string]: string;
+}
+
+const EVENTS_PAGE_SIZE = 1000;
+const TEI_PAGE_SIZE = 100;
 
 export async function initializeEventsDataExtraction({
   startDate,
@@ -40,14 +50,111 @@ export async function initializeEventsDataExtraction({
       program
     );
 
-    console.log(JSON.stringify({ trackedEntityInstances, events }));
     // 3. Combine the payload events with tei data in rows.
+    const beneficiries = getBeneficiariesMappedWithThierEvents(
+      program,
+      groupedEventsByTrackeEntityInstances,
+      trackedEntityInstances
+    );
+
+    console.log(JSON.stringify({ beneficiries }));
   } catch (error) {
     logger.error(
       `Failed to evaluate events for ${program} program. Check the log below`
     );
     logger.error(JSON.stringify(error));
   }
+}
+
+function getBeneficiariesMappedWithThierEvents(
+  program: string,
+  groupedEventsByTrackeEntityInstances: {
+    [key: string]: Dhis2Event[];
+  },
+  trackedEntityInstances: Dhis2TrackedEntityInstance[]
+): Array<BeneficiaryData> {
+  logger.info("Generating data for export");
+  const beneficiaries: Array<BeneficiaryData> = [];
+  for (const trackedEntityInstanceObject of trackedEntityInstances) {
+    const { attributes, trackedEntityInstance } = trackedEntityInstanceObject;
+    const events = groupedEventsByTrackeEntityInstances[trackedEntityInstance];
+
+    const attributeAttributeColumns = getIdentifiers(attributes, program);
+    const ServiceColumns = getServiceColumns(events, program);
+
+    beneficiaries.push({ ...attributeAttributeColumns, ...ServiceColumns });
+  }
+
+  return beneficiaries;
+}
+
+function getIdentifiers(
+  attributes: Attribute[],
+  program: string
+): { [key: string]: string } {
+  let data = {};
+  const { attributeColumns } = columnMappings[program];
+  for (const attributeColumn of attributeColumns) {
+    const { attribute: attributeId, column } = attributeColumn;
+    const attribute = find(
+      attributes,
+      ({ attribute }) => attribute === attributeId
+    );
+    data = { ...data, [column]: attribute?.value ?? "" };
+  }
+  return data;
+}
+
+function getServiceColumns(
+  events: Dhis2Event[],
+  program: string
+): { [key: string]: string } {
+  let data: { [key: string]: string } = {};
+  const groupedEventsByProgramStage = groupBy(events, "programStage");
+
+  const { eventColumns } = columnMappings[program];
+
+  for (const eventColumn of eventColumns) {
+    const { programStage, column, dataElement } = eventColumn;
+    const programStagesEvents = groupedEventsByProgramStage[programStage];
+    const sepator = "-";
+    let value = "";
+    for (const event of programStagesEvents ?? []) {
+      const { dataValues } = event;
+      value = dataElement
+        .split(sepator)
+        .map((de: string) => {
+          const dataValue =
+            find(
+              dataValues,
+              (dataValue: DataValue) => de === dataValue.dataElement
+            )?.value ?? "";
+
+          return !dataElement.includes("-")
+            ? ["Yes", "1", "true"].includes(dataValue)
+              ? "Yes"
+              : ["No", "0", "false"].includes(dataValue)
+              ? ""
+              : dataValue
+            : dataValue;
+        })
+        .join(sepator);
+
+      if (dataElement.includes("-") && value.length > 1) {
+        data = {
+          ...data,
+          [value]: "Yes",
+        };
+      } else if (column) {
+        data = {
+          ...data,
+          [column]: value === "" && data[column] ? data[column] : value,
+        };
+      }
+    }
+  }
+
+  return data;
 }
 
 async function getTrackedEntityInstancesByIds(
@@ -58,7 +165,7 @@ async function getTrackedEntityInstancesByIds(
   const teiIdGroups = map(chunk(teiIds, TEI_PAGE_SIZE), (teiList: string[]) =>
     teiList.join(";")
   );
-  const url = `trackedEntityInstances.json?ouMode=ACCESSIBLE&program=${program}&fields=trackedEntityInstance,attributes[attribute,value]`;
+  const url = `trackedEntityInstances.json?ouMode=ACCESSIBLE&program=${program}&fields=trackedEntityInstance,attributes[attribute,value],enrollments[orgUnitName]`;
 
   try {
     let index = 1;
@@ -103,15 +210,15 @@ async function getOnlineEvents(
 
   try {
     let fetchingEventData = true;
+    let page = 1;
     while (fetchingEventData) {
-      const response = await getDhis2DataByPagination(url);
+      const response = await getDhis2DataByPagination(url, page);
       const { data, status } = response;
 
       if (status === 200) {
         const { events: fetchedEvents, pager } = data;
         const { page, pageCount } = pager;
         fetchingEventData = pageCount > page;
-
         events = [...events, ...(fetchedEvents as Dhis2Event[])];
         logger.info(
           `Successfully fetched ${page} out of ${pageCount} pages of Events`
@@ -120,6 +227,8 @@ async function getOnlineEvents(
         fetchingEventData = false;
         logger.error(`Failed to fetch events due to HTTP status: ${status}`);
       }
+
+      page++;
     }
   } catch (e) {
     logger.error(`Failed to fetch events! Check the logs below.`);
@@ -132,5 +241,3 @@ async function getOnlineEvents(
 async function getDhis2DataByPagination(url: string, page = 1): Promise<any> {
   return dhis2Client.get(`${url}&page=${page}`);
 }
-
-async function getOnlineEventsFromList() {}
