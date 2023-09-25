@@ -58,7 +58,7 @@ export async function initializeEventsDataExtraction({
       trackedEntityInstances
     );
 
-    saveDataToFile(beneficiaries, startDate, endDate);
+    saveDataToFile(beneficiaries, startDate, endDate, program);
   } catch (error) {
     logger.error(
       `Failed to evaluate events for ${program} program. Check the log below`
@@ -215,14 +215,15 @@ function getServiceColumns(
 function saveDataToFile(
   data: BeneficiaryData[],
   startDate: string,
-  endDate: string
+  endDate: string,
+  program: string
 ) {
   logger.info("Saving the extracted data into the file");
   try {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-    const fileName = `Service Data from ${startDate} ot ${endDate}.xlsx`;
+    const fileName = `Service Data for ${program} from ${startDate} ot ${endDate}.xlsx`;
 
     XLSX.writeFile(workbook, fileName);
 
