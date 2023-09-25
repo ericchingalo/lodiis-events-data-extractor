@@ -23,6 +23,10 @@ export const columnMappings: ProgramConfig = {
         attribute: "qZP982qpSPS",
         column: "Date of Birth",
       },
+      {
+        attribute: "klLkGxy328c",
+        column: "Implementing partner",
+      },
     ],
     eventColumns: [
       {
@@ -144,7 +148,6 @@ export const columnMappings: ProgramConfig = {
         attribute: "vIX4GTSCX4P",
         column: "SEX",
       },
-
       {
         attribute: "qZP982qpSPS",
         column: "DATE OF BIRTH",
@@ -252,6 +255,42 @@ export const columnMappings: ProgramConfig = {
       {
         attribute: "OLbwYRoywcZ",
         column: "Case completed?",
+      },
+      {
+        attribute: "YR7Xxk14qoP",
+        column: "Is the child living with disabilities?",
+      },
+      {
+        attribute: "dufGxx0KVg0",
+        column: "Acquired brain injury",
+      },
+      {
+        attribute: "nfp9NHLf25K",
+        column: "Autism spectrum disorder",
+      },
+      {
+        attribute: "tbLVGG4zDrJ",
+        column: "Deaf or hard hearing",
+      },
+      {
+        attribute: "ULr0tYkjTTB",
+        column: " Intellectual disability",
+      },
+      {
+        attribute: "BfbiOanp9Pi",
+        column: "Mental health conditions",
+      },
+      {
+        attribute: "X3MQhmVA1Jt",
+        column: "Physical disability",
+      },
+      {
+        attribute: "TPRVr4ua9f9",
+        column: "Vision impairment",
+      },
+      {
+        attribute: "klLkGxy328c",
+        column: "Implementing partner",
       },
     ],
     eventColumns: [
@@ -694,6 +733,10 @@ export const columnMappings: ProgramConfig = {
       {
         attribute: "PN92g65TkVI",
         column: "BENEFICIARY STATUS",
+      },
+      {
+        attribute: "klLkGxy328c",
+        column: "Implementing partner",
       },
     ],
     eventColumns: [
