@@ -102,6 +102,14 @@ function sortByKeys(unorderedData: { [key: string]: string }): {
     }, {});
 }
 
+function sanitizeValue(value: string): string {
+  return ["Yes", "1", "true"].includes(value)
+    ? "Yes"
+    : ["No", "0", "false"].includes(value)
+    ? ""
+    : value;
+}
+
 function getIdentifiers(
   attributes: Attribute[],
   program: string
@@ -114,7 +122,7 @@ function getIdentifiers(
       attributes,
       ({ attribute }) => attribute === attributeId
     );
-    data = { ...data, [column]: attribute?.value ?? "" };
+    data = { ...data, [column]: sanitizeValue(attribute?.value ?? "") };
   }
   return data;
 }
@@ -131,12 +139,12 @@ function getServiceColumns(
   for (const eventColumn of eventColumns) {
     const { programStage, column, dataElement } = eventColumn;
     const programStagesEvents = groupedEventsByProgramStage[programStage];
-    const sepator = "-";
+    const separator = "-";
     let value = "";
     for (const event of programStagesEvents ?? []) {
       const { dataValues } = event;
       value = dataElement
-        .split(sepator)
+        .split(separator)
         .map((de: string) => {
           const dataValue =
             find(
@@ -144,15 +152,17 @@ function getServiceColumns(
               (dataValue: DataValue) => de === dataValue.dataElement
             )?.value ?? "";
 
-          return !dataElement.includes("-")
-            ? ["Yes", "1", "true"].includes(dataValue)
-              ? "Yes"
-              : ["No", "0", "false"].includes(dataValue)
-              ? ""
+          return sanitizeValue(
+            !dataElement.includes("-")
+              ? ["Yes", "1", "true"].includes(dataValue)
+                ? "Yes"
+                : ["No", "0", "false"].includes(dataValue)
+                ? ""
+                : dataValue
               : dataValue
-            : dataValue;
+          );
         })
-        .join(sepator);
+        .join(separator);
 
       if (dataElement.includes("-") && value.length > 1) {
         data = {
@@ -200,7 +210,7 @@ async function getTrackedEntityInstancesByIds(
   const teiIdGroups = map(chunk(teiIds, TEI_PAGE_SIZE), (teiList: string[]) =>
     teiList.join(";")
   );
-  const url = `trackedEntityInstances.json?ouMode=ACCESSIBLE&program=${program}&fields=trackedEntityInstance,attributes[attribute,value],enrollments[orgUnitName]`;
+  const url = `trackedEntityInstances.json?ouMode=ACCESSIBLE&program=${program}&fields=trackedEntityInstance,attributes[attribute,value],enrollments[enrollmentDate,orgUnitName]`;
 
   try {
     let index = 1;
@@ -221,7 +231,7 @@ async function getTrackedEntityInstancesByIds(
         index++;
       } else {
         logger.error(
-          `Failed to fetch Trakced entity instances due to HTTP status: ${status}`
+          `Failed to fetch Tracked entity instances due to HTTP status: ${status}`
         );
       }
     }
