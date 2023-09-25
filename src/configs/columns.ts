@@ -461,6 +461,11 @@ export const columnMappings: ProgramConfig = {
         programStage: "gkNKXUxpyv9",
       },
       {
+        column: "DATE OF LAST SERVICE",
+        dataElement: "eventDate",
+        programStage: "CHFwighOquA",
+      },
+      {
         column: "HIVSCREEN Service",
         dataElement: "BYu8pI5kGXF",
         programStage: "CHFwighOquA",
