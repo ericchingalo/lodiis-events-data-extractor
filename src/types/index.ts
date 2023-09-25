@@ -25,9 +25,14 @@ export interface Dhis2Event {
   dataValues: Array<DataValue>;
 }
 
+export interface Dhis2Enrollment {
+  orgUnitName: string;
+  enrollmentDate: string;
+}
+
 export interface Dhis2TrackedEntityInstance {
   trackedEntityInstance: string;
-  enrollments: Array<{ orgUnitName: string }>;
+  enrollments: Array<Dhis2Enrollment>;
   attributes: Array<Attribute>;
 }
 
@@ -40,7 +45,7 @@ export interface AttributeColumMapping {
   column: string;
 }
 
-export interface EventColumbMapping {
+export interface EventColumnMapping {
   column?: string;
   programStage: string;
   dataElement: string;
@@ -48,5 +53,5 @@ export interface EventColumbMapping {
 
 export interface ProgramMapping {
   attributeColumns: Array<AttributeColumMapping>;
-  eventColumns: Array<EventColumbMapping>;
+  eventColumns: Array<EventColumnMapping>;
 }
