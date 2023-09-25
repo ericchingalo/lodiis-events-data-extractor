@@ -12,7 +12,7 @@ program
   .option("-e --endDate <endDate>", "End date formatted as YYYY-MM-DD")
   .action(async (args) => {
     let { startDate, endDate, program } = args ?? {};
-    logger.info("Started the extration of events data");
+    logger.info("Started the extraction of events data");
     await initializeEventsDataExtraction({
       program,
       startDate,

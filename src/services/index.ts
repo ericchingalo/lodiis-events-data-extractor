@@ -39,25 +39,25 @@ export async function initializeEventsDataExtraction({
   try {
     const events = await getOnlineEvents(startDate, endDate, program);
 
-    const groupedEventsByTrackeEntityInstances = groupBy(
+    const groupedEventsByTrackedEntityInstances = groupBy(
       events,
       "trackedEntityInstance"
     );
 
-    const teiIds = uniq(keys(groupedEventsByTrackeEntityInstances));
+    const teiIds = uniq(keys(groupedEventsByTrackedEntityInstances));
 
     const trackedEntityInstances = await getTrackedEntityInstancesByIds(
       teiIds,
       program
     );
 
-    const beneficiries = getBeneficiariesMappedWithThierEvents(
+    const beneficiaries = getBeneficiariesMappedWithTheirEvents(
       program,
-      groupedEventsByTrackeEntityInstances,
+      groupedEventsByTrackedEntityInstances,
       trackedEntityInstances
     );
 
-    saveDataToFile(beneficiries, startDate, endDate);
+    saveDataToFile(beneficiaries, startDate, endDate);
   } catch (error) {
     logger.error(
       `Failed to evaluate events for ${program} program. Check the log below`
@@ -66,9 +66,9 @@ export async function initializeEventsDataExtraction({
   }
 }
 
-function getBeneficiariesMappedWithThierEvents(
+function getBeneficiariesMappedWithTheirEvents(
   program: string,
-  groupedEventsByTrackeEntityInstances: {
+  groupedEventsByTrackedEntityInstances: {
     [key: string]: Dhis2Event[];
   },
   trackedEntityInstances: Dhis2TrackedEntityInstance[]
@@ -77,7 +77,7 @@ function getBeneficiariesMappedWithThierEvents(
   const beneficiaries: Array<BeneficiaryData> = [];
   for (const trackedEntityInstanceObject of trackedEntityInstances) {
     const { attributes, trackedEntityInstance } = trackedEntityInstanceObject;
-    const events = groupedEventsByTrackeEntityInstances[trackedEntityInstance];
+    const events = groupedEventsByTrackedEntityInstances[trackedEntityInstance];
 
     const attributeAttributeColumns = getIdentifiers(attributes, program);
     const ServiceColumns = getServiceColumns(events, program);
