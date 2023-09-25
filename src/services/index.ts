@@ -6,6 +6,7 @@ import logger from "../logging";
 import {
   Attribute,
   DataValue,
+  Dhis2Enrollment,
   Dhis2Event,
   Dhis2TrackedEntityInstance,
 } from "../types";
@@ -76,10 +77,15 @@ function getBeneficiariesMappedWithTheirEvents(
   logger.info("Generating data for export");
   const beneficiaries: Array<BeneficiaryData> = [];
   for (const trackedEntityInstanceObject of trackedEntityInstances) {
-    const { attributes, trackedEntityInstance } = trackedEntityInstanceObject;
+    const { attributes, trackedEntityInstance, enrollments } =
+      trackedEntityInstanceObject;
     const events = groupedEventsByTrackedEntityInstances[trackedEntityInstance];
 
-    const attributeAttributeColumns = getIdentifiers(attributes, program);
+    const attributeAttributeColumns = getIdentifiers(
+      attributes,
+      enrollments,
+      program
+    );
     const ServiceColumns = getServiceColumns(events, program);
 
     beneficiaries.push({
@@ -112,17 +118,35 @@ function sanitizeValue(value: string): string {
 
 function getIdentifiers(
   attributes: Attribute[],
+  enrollments: Dhis2Enrollment[],
   program: string
 ): { [key: string]: string } {
   let data = {};
   const { attributeColumns } = columnMappings[program];
   for (const attributeColumn of attributeColumns) {
     const { attribute: attributeId, column } = attributeColumn;
-    const attribute = find(
-      attributes,
-      ({ attribute }) => attribute === attributeId
-    );
-    data = { ...data, [column]: sanitizeValue(attribute?.value ?? "") };
+    if (!["enrollmentDate", "orgUnitName"].includes(attributeId)) {
+      const attribute = find(
+        attributes,
+        ({ attribute }) => attribute === attributeId
+      );
+      data = { ...data, [column]: sanitizeValue(attribute?.value ?? "") };
+    } else {
+      if (enrollments.length) {
+        for (const enrollment of enrollments) {
+          const { enrollmentDate, orgUnitName } = enrollment;
+          data = {
+            ...data,
+            [column]:
+              attributeId == "enrollmentDate"
+                ? (enrollmentDate ?? "").split("T")[0]
+                : attributeId == "orgUnitName"
+                ? orgUnitName ?? ""
+                : "",
+          };
+        }
+      }
+    }
   }
   return data;
 }
@@ -143,36 +167,43 @@ function getServiceColumns(
     let value = "";
     for (const event of programStagesEvents ?? []) {
       const { dataValues } = event;
-      value = dataElement
-        .split(separator)
-        .map((de: string) => {
-          const dataValue =
-            find(
-              dataValues,
-              (dataValue: DataValue) => de === dataValue.dataElement
-            )?.value ?? "";
 
-          return sanitizeValue(
-            !dataElement.includes("-")
-              ? ["Yes", "1", "true"].includes(dataValue)
-                ? "Yes"
-                : ["No", "0", "false"].includes(dataValue)
-                ? ""
-                : dataValue
-              : dataValue
-          );
-        })
-        .join(separator);
+      if (!["eventDate", "orgUnitName"].includes(dataElement)) {
+        value = dataElement
+          .split(separator)
+          .map((de: string) => {
+            const dataValue =
+              find(
+                dataValues,
+                (dataValue: DataValue) => de === dataValue.dataElement
+              )?.value ?? "";
 
-      if (dataElement.includes("-") && value.length > 1) {
-        data = {
-          ...data,
-          [value]: "Yes",
-        };
+            return !dataElement.includes(separator)
+              ? sanitizeValue(dataValue)
+              : dataValue;
+          })
+          .join(separator);
+
+        if (dataElement.includes(separator) && value.length > 1) {
+          data = {
+            ...data,
+            [value]: "Yes",
+          };
+        } else if (column) {
+          data = {
+            ...data,
+            [column]: value === "" && data[column] ? data[column] : value,
+          };
+        }
       } else if (column) {
         data = {
           ...data,
-          [column]: value === "" && data[column] ? data[column] : value,
+          [column]:
+            dataElement == "eventDate"
+              ? (event.eventDate ?? "").split("T")[0]
+              : dataElement == "orgUnitName"
+              ? event.orgUnitName ?? ""
+              : "",
         };
       }
     }
