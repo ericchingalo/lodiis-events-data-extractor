@@ -110,7 +110,7 @@ function sortByKeys(unorderedData: { [key: string]: string }): {
 
 function sanitizeValue(value: string, codes?: Array<string>): string {
   if (codes && codes.length) {
-    return codes.includes(value) ? "Yes" : "False";
+    return codes.includes(value) ? "Yes" : "";
   }
   return ["Yes", "1", "true"].includes(value)
     ? "Yes"
@@ -165,7 +165,9 @@ function getServiceColumns(
 
   for (const eventColumn of eventColumns) {
     const { programStage, column, dataElement, codes } = eventColumn;
-    const programStagesEvents = groupedEventsByProgramStage[programStage];
+    const programStagesEvents = programStage
+      ? groupedEventsByProgramStage[programStage]
+      : events;
     const separator = "-";
     let value = "";
     for (const event of programStagesEvents ?? []) {
@@ -251,7 +253,7 @@ function getServiceFromReferral(
   ) {
     return "Yes";
   } else {
-    return "No";
+    return "";
   }
 }
 

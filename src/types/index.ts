@@ -47,7 +47,7 @@ export interface AttributeColumMapping {
 
 export interface EventColumnMapping {
   column?: string;
-  programStage: string;
+  programStage?: string;
   dataElement: string;
   codes?: Array<string>;
 }
