@@ -109,6 +109,9 @@ function sortByKeys(unorderedData: { [key: string]: string }): {
 }
 
 function sanitizeValue(value: string, codes?: Array<string>): string {
+  if (codes && codes.length) {
+    return codes.includes(value) ? "Yes" : "False";
+  }
   return ["Yes", "1", "true"].includes(value)
     ? "Yes"
     : ["No", "0", "false"].includes(value)

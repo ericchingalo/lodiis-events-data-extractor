@@ -49,7 +49,7 @@ export interface EventColumnMapping {
   column?: string;
   programStage: string;
   dataElement: string;
-  codes: Array<string>;
+  codes?: Array<string>;
 }
 
 export interface ProgramMapping {
