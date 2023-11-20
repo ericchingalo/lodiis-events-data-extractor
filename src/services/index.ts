@@ -171,7 +171,15 @@ function getServiceColumns(
     for (const event of programStagesEvents ?? []) {
       const { dataValues } = event;
 
-      if (!["eventDate", "orgUnitName"].includes(dataElement)) {
+      if (dataElement === "service_from_referral") {
+        if (column) {
+          const value = getServiceFromReferral(dataValues, codes ?? []);
+          data = {
+            ...data,
+            [column]: value,
+          };
+        }
+      } else if (!["eventDate", "orgUnitName"].includes(dataElement)) {
         value = dataElement
           .split(separator)
           .map((de: string) => {
@@ -213,6 +221,38 @@ function getServiceColumns(
   }
 
   return data;
+}
+
+function getServiceFromReferral(
+  dataValues: Array<DataValue>,
+  codes: string[]
+): string {
+  const communityServiceField = "rsh5Kvx6qAU";
+  const facilityServiceField = "OrC9Bh2bcFz";
+  const serviceProvidedField = "hXyqgOWZ17b";
+
+  const isServiceProvided = find(
+    dataValues,
+    ({ dataElement }) => dataElement === serviceProvidedField
+  );
+  const providedService = find(
+    dataValues,
+    ({ dataElement, value }) =>
+      [facilityServiceField, communityServiceField].includes(dataElement) &&
+      value != ""
+  );
+  if (
+    `${isServiceProvided?.value}` === "1" &&
+    [communityServiceField, facilityServiceField].some(
+      (referralService: string) => {
+        return providedService?.value && codes.includes(providedService.value);
+      }
+    )
+  ) {
+    return "Yes";
+  } else {
+    return "No";
+  }
 }
 
 function saveDataToFile(
