@@ -108,7 +108,7 @@ function sortByKeys(unorderedData: { [key: string]: string }): {
     }, {});
 }
 
-function sanitizeValue(value: string): string {
+function sanitizeValue(value: string, codes?: Array<string>): string {
   return ["Yes", "1", "true"].includes(value)
     ? "Yes"
     : ["No", "0", "false"].includes(value)
@@ -161,7 +161,7 @@ function getServiceColumns(
   const { eventColumns } = columnMappings[program];
 
   for (const eventColumn of eventColumns) {
-    const { programStage, column, dataElement } = eventColumn;
+    const { programStage, column, dataElement, codes } = eventColumn;
     const programStagesEvents = groupedEventsByProgramStage[programStage];
     const separator = "-";
     let value = "";
@@ -179,7 +179,7 @@ function getServiceColumns(
               )?.value ?? "";
 
             return !dataElement.includes(separator)
-              ? sanitizeValue(dataValue)
+              ? sanitizeValue(dataValue, codes)
               : dataValue;
           })
           .join(separator);
@@ -282,7 +282,7 @@ async function getOnlineEvents(
   endDate: string,
   program: string
 ): Promise<Dhis2Event[]> {
-  const url = `events.json?ouMode=ACCESSIBLE&startDate=${startDate}&endDate=${endDate}&program=${program}&fields=event,trackedEntityInstance,orgUnitName,programStage,eventDate,dataValues[dataElement,value]&totalPages=true&pageSize=${EVENTS_PAGE_SIZE}`;
+  const url = `events.json?ouMode=ACCESSIBLE&startDate=${startDate}&endDate=${endDate}&program=${program}&fields=event,trackedEntityInstance,orgUnitName,programStage,eventDate,dataValues[dataElement,value]&totalPages=true&pageSize=${EVENTS_PAGE_SIZE}&order=eventDate:ASC`;
   let events: Dhis2Event[] = [];
 
   try {
