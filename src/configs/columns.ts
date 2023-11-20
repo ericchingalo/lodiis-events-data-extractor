@@ -8,24 +8,76 @@ export const columnMappings: ProgramConfig = {
         column: "First Name",
       },
       {
-        attribute: "s1HaiT6OllL",
-        column: "Middle Name",
-      },
-      {
         attribute: "rSP9c21JsfC",
         column: "Surname",
-      },
-      {
-        attribute: "fTSAY18LgCF",
-        column: "Primary UIC",
       },
       {
         attribute: "qZP982qpSPS",
         column: "Date of Birth",
       },
       {
+        attribute: "beneficiary_age",
+        column: "Age",
+      },
+      {
+        attribute: "VJiWumvINR6",
+        column: "Sex",
+      },
+      {
+        attribute: "tNdoR0jYr7R",
+        column: "Contact Number",
+      },
+      {
+        attribute: "XYPRtYgQUF8",
+        column: "Current Pregnancy status",
+      },
+      {
+        attribute: "fTSAY18LgCF",
+        column: "ID number",
+      },
+      {
+        attribute: "q8qPtzanSTU",
+        column: "Number of Sex Partners",
+      },
+      {
+        attribute: "iY67qYnywgS",
+        column: "Regular Condom Use",
+      },
+      {
+        attribute: "p33MrrhsQRz",
+        column: "Transactional Sex",
+      },
+      {
+        attribute: "yc3BlUIEup3",
+        column: "Experiences of Violence",
+      },
+      {
+        attribute: "bApA6X6TVvJ",
+        column: "School Enrollment",
+      },
+      {
+        attribute: "HJIHPjOf5s1",
+        column: "Alcohol Use",
+      },
+      {
+        attribute: "B4ojlzKypUF",
+        column: "Orphanhood",
+      },
+      {
+        attribute: "RB8Wx75hGa4",
+        column: "Village",
+      },
+      {
+        attribute: "enrollmentDate",
+        column: "Date of enrollment to the program",
+      },
+      {
         attribute: "klLkGxy328c",
-        column: "Implementing partner",
+        column: "Implementing Mechanism Name",
+      },
+      {
+        attribute: "DdnlE8kmIkT",
+        column: "Service Provider",
       },
     ],
     eventColumns: [
