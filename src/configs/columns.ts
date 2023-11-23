@@ -110,6 +110,7 @@ export const columnMappings: ProgramConfig = {
       {
         dataElement: "N8tlZl91pBY",
         column: "HTS",
+        codes: ["Positive", "Negative", "Indeterminate"],
         programStage: "kq6qeEgbDVY",
       },
       {
