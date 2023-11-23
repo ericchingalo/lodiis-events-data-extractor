@@ -13,11 +13,16 @@ program
   )
   .option("-s --startDate <startDate>", "Start date formatted as YYYY-MM-DD")
   .option("-e --endDate <endDate>", "End date formatted as YYYY-MM-DD")
-  .action(async (args) => {
+  .action(async (args: any) => {
     let { startDate, endDate, program: programs } = args ?? {};
     logger.info("Started the extraction of events data");
 
-    for (const program of programs.split(",") as string[]) {
+    if (!programs) {
+      logger.info(`There is no program specified for data extraction`);
+      return;
+    }
+
+    for (const program of (programs ?? "").split(",") as string[]) {
       logger.info(`Extracting events from ${program}`);
       await initializeEventsDataExtraction({
         program: program.trim(),
