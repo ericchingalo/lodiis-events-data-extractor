@@ -14,9 +14,9 @@ import dhis2Client from "../clients/dhis2";
 import { columnMappings } from "../configs/columns";
 
 interface EventExtractionArguments {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
   program: string;
+  endDate?: string;
 }
 
 interface BeneficiaryData {
@@ -31,13 +31,11 @@ export async function initializeEventsDataExtraction({
   endDate,
   program,
 }: EventExtractionArguments) {
-  startDate = startDate ?? DateTime.now().toISODate() ?? "";
-  endDate = endDate ?? DateTime.now().toISODate() ?? "";
-  logger.info(
-    `Evaluating event for ${program} program from ${startDate} to ${endDate}`
-  );
-
   try {
+    endDate = endDate ?? DateTime.now().toISODate() ?? "";
+    logger.info(
+      `Evaluating event for ${program} program from ${startDate} to ${endDate}`
+    );
     const events = await getOnlineEvents(startDate, endDate, program);
 
     const groupedEventsByTrackedEntityInstances = groupBy(
@@ -115,8 +113,8 @@ function sanitizeValue(value: string, codes?: Array<string>): string {
   return ["Yes", "1", "true"].includes(value)
     ? "Yes"
     : ["No", "0", "false"].includes(value)
-    ? ""
-    : value;
+      ? ""
+      : value;
 }
 
 function getIdentifiers(
@@ -144,8 +142,8 @@ function getIdentifiers(
               attributeId == "enrollmentDate"
                 ? (enrollmentDate ?? "").split("T")[0]
                 : attributeId == "orgUnitName"
-                ? orgUnitName ?? ""
-                : "",
+                  ? orgUnitName ?? ""
+                  : "",
           };
         }
       }
@@ -215,8 +213,8 @@ function getServiceColumns(
             dataElement == "eventDate"
               ? (event.eventDate ?? "").split("T")[0]
               : dataElement == "orgUnitName"
-              ? event.orgUnitName ?? ""
-              : "",
+                ? event.orgUnitName ?? ""
+                : "",
         };
       }
     }
@@ -268,7 +266,7 @@ function saveDataToFile(
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-    const fileName = `Service Data for ${program} from ${startDate} ot ${endDate}.xlsx`;
+    const fileName = `LODIIS Data for ${program} from ${startDate} ot ${endDate}.xlsx`;
 
     XLSX.writeFile(workbook, fileName);
 
