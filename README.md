@@ -17,6 +17,7 @@ This script uses the following basic packages as basic toolings:
 - Luxon: A javascript package for manipulating time. [Learn more](https://www.npmjs.com/package/luxon)
 - Lodash: A javascript package for manipulating objects and arrays. [Learn more](https://www.npmjs.com/package/lodash)
 - xlsx: A Javascript library for manipulating excel and csv files. [Learn more](https://www.npmjs.com/package/xlsx)
+- Joi: A Javascript library for performing validations of objects. [Learn more](https://www.npmjs.com/package/joi)
 
 ## Getting started
 

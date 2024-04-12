@@ -14,9 +14,9 @@ import dhis2Client from "../clients/dhis2";
 import { columnMappings } from "../configs/columns";
 
 interface EventExtractionArguments {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
   program: string;
+  endDate?: string;
 }
 
 interface BeneficiaryData {
@@ -31,13 +31,11 @@ export async function initializeEventsDataExtraction({
   endDate,
   program,
 }: EventExtractionArguments) {
-  startDate = startDate ?? DateTime.now().toISODate() ?? "";
-  endDate = endDate ?? DateTime.now().toISODate() ?? "";
-  logger.info(
-    `Evaluating event for ${program} program from ${startDate} to ${endDate}`
-  );
-
   try {
+    endDate = endDate ?? DateTime.now().toISODate() ?? "";
+    logger.info(
+      `Evaluating event for ${program} program from ${startDate} to ${endDate}`
+    );
     const events = await getOnlineEvents(startDate, endDate, program);
 
     const groupedEventsByTrackedEntityInstances = groupBy(
